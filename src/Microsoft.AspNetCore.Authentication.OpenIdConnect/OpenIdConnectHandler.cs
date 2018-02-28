@@ -24,7 +24,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNetCore.Authentication.OpenIdConnect
 {
-    /// <summary>
+	using Jose;
+
+	/// <summary>
     /// A per-request authentication handler for the OpenIdConnectAuthenticationMiddleware.
     /// </summary>
     public class OpenIdConnectHandler : RemoteAuthenticationHandler<OpenIdConnectOptions>, IAuthenticationSignOutHandler
@@ -793,6 +795,28 @@ namespace Microsoft.AspNetCore.Authentication.OpenIdConnect
             }
             else if (contentType.MediaType.Equals("application/jwt", StringComparison.OrdinalIgnoreCase))
             {
+				/* Added to decrypt JWE tokens from LandSense AS */
+				if (message.Parameters.ContainsKey("userinfo_encrypted_response_alg") &&
+					message.Parameters.ContainsKey("userinfo_encrypted_response_enc") &&
+					message.Parameters.ContainsKey("userinfo_secret"))
+				{
+					try
+					{
+						var secret = message.Parameters["userinfo_secret"];
+
+						JweAlgorithm algorithm = (JweAlgorithm)Enum.Parse(typeof(JweAlgorithm),
+							message.Parameters["userinfo_encrypted_response_alg"].ToUpper(CultureInfo.InvariantCulture));
+
+						JweEncryption encryption = (JweEncryption)Enum.Parse(typeof(JweEncryption),
+							message.Parameters["userinfo_encrypted_response_enc"].ToUpper(CultureInfo.InvariantCulture).Replace("-", "_"));
+
+						byte[] secretBytes = Encoding.Default.GetBytes(secret);
+
+						userInfoResponse = JWT.Decode(userInfoResponse, secretBytes, algorithm, encryption);
+					}
+					catch (Exception) { }
+				}
+
                 var userInfoEndpointJwt = new JwtSecurityToken(userInfoResponse);
                 user = JObject.FromObject(userInfoEndpointJwt.Payload);
             }
