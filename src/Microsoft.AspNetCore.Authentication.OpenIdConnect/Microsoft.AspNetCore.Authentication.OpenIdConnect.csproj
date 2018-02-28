@@ -8,7 +8,8 @@
     <PackageTags>aspnetcore;authentication;security</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.AspNetCore.Authentication.OAuth\Microsoft.AspNetCore.Authentication.OAuth.csproj" />
+    <PackageReference Include="jose-jwt-signed" Version="2.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.0.1" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="$(MicrosoftIdentityModelProtocolsOpenIdConnectPackageVersion)" />
   </ItemGroup>
 </Project>

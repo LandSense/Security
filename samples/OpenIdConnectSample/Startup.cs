@@ -47,30 +47,48 @@ namespace OpenIdConnectSample
                 sharedOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
                 .AddCookie()
-                .AddOpenIdConnect(o =>
-            {
-                o.ClientId = Configuration["oidc:clientid"];
-                o.ClientSecret = Configuration["oidc:clientsecret"]; // for code flow
-                o.Authority = Configuration["oidc:authority"];
-                o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
-                o.GetClaimsFromUserInfoEndpoint = true;
-                o.Events = new OpenIdConnectEvents()
-                {
-                    OnAuthenticationFailed = c =>
-                    {
-                        c.HandleResponse();
+                .AddOpenIdConnect(options =>
+				{
+					options.ClientId = "68578259-89db-7656-916b-b3f70c03e7bd@as.landsense.eu";
+					options.ClientSecret = "f433f6d5cea5a185a9fde263ce722ad8d42ae287c3d00b7d99d73f17a772b8b4";
 
-                        c.Response.StatusCode = 500;
-                        c.Response.ContentType = "text/plain";
-                        if (Environment.IsDevelopment())
-                        {
-                            // Debug only, in production do not share exceptions with the remote host.
-                            return c.Response.WriteAsync(c.Exception.ToString());
-                        }
-                        return c.Response.WriteAsync("An error occurred processing your authentication.");
-                    }
-                };
-            });
+					options.Authority = "https://as.landsense.eu/";
+
+					options.ResponseType = OpenIdConnectResponseType.Code;
+
+					options.SaveTokens = true;
+
+					options.GetClaimsFromUserInfoEndpoint = true;
+
+					options.Scope.Add("openid");
+					options.Scope.Add("profile");
+					options.Scope.Add("email");
+					options.Scope.Add("landsense");
+
+					//o =>
+					//       {
+					//           o.ClientId = Configuration["oidc:clientid"];
+					//           o.ClientSecret = Configuration["oidc:clientsecret"]; // for code flow
+					//           o.Authority = Configuration["oidc:authority"];
+					//           o.ResponseType = OpenIdConnectResponseType.CodeIdToken;
+					//           o.GetClaimsFromUserInfoEndpoint = true;
+					//           o.Events = new OpenIdConnectEvents()
+					//           {
+					//               OnAuthenticationFailed = c =>
+					//               {
+					//                   c.HandleResponse();
+
+					//                   c.Response.StatusCode = 500;
+					//                   c.Response.ContentType = "text/plain";
+					//                   if (Environment.IsDevelopment())
+					//                   {
+					//                       // Debug only, in production do not share exceptions with the remote host.
+					//                       return c.Response.WriteAsync(c.Exception.ToString());
+					//                   }
+					//                   return c.Response.WriteAsync("An error occurred processing your authentication.");
+					//               }
+					//           };
+				});
         }
 
         public void Configure(IApplicationBuilder app)
